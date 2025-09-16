@@ -2,16 +2,20 @@ const ws = require('ws');
 
 const wss = new ws.WebSocketServer({ port: 80 });
 const clients = {};
+const messages = []; // TODO channels
 var id = 0
 wss.on('connection', (ws) => {
     client_id = id++;
     clients[client_id] = ws;
     console.log(`Client ${id} connected`);
-    ws.on('message', (message) => {
-        
+    ws.on('message', (rawMessageInstance, isBinary) => {
+        const messageInstance = JSON.parse(isBinary ? rawMessageInstance : rawMessageInstance.toString());
+        const message = messageInstance.message;
+        console.log(message);
+        messages.push(messageInstance);
     });
     ws.on('close', () => {
-        delete client[client_id];
-        console.log(`Client ${id} disconnected`);
+        delete clients[client_id];
+        console.log(`Client ${client_id} disconnected`);
     });
 });

@@ -6,6 +6,7 @@ import {
   Route,
 } from 'react-router-dom'
 import { StrictMode } from 'react'
+import { IndexComponent } from './components/IndexComponent'
 
 
 /** 
@@ -14,13 +15,11 @@ import { StrictMode } from 'react'
 export function AppComponent() {
   return (
     <StrictMode>
-      <StoreProvider>
-        <BrowserRouter>
-          <Routes>
-            
-          </Routes>
-        </BrowserRouter>
-      </StoreProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" Component={() => <IndexComponent />}/>
+        </Routes>
+      </BrowserRouter>
     </StrictMode>
   )
 }
