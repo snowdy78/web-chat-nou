@@ -1,0 +1,35 @@
+.channel {
+    display: flex;
+    width: 300px;
+    flex-direction: column;
+}
+.channel-form-message {
+    display: flex;
+    height: 30px;
+    justify-content: center;
+}
+.chat {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    height: 400px;
+    background-color: var(--light);
+    margin: 5%;
+    border-radius: 10px;
+    justify-content: end;
+}
+.channel-form-message__send-button {
+    display: flex;
+    line-height: 30px;
+    padding: 0 10px 0 10px;
+    background-color: var(--dark);
+}
+
+.channel-form-message__input-message {
+    display: flex;
+    width: 70%;
+    border: 0;
+    border-radius: 1em;
+    margin: 0 10px;
+    padding-left: 2ch; 
+}

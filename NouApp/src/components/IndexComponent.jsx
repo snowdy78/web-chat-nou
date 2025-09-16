@@ -1,4 +1,7 @@
 import React from 'react';
+import { Message } from './Message';
+import { Chat } from './Chat';
+import './css/IndexComponent.css';
 
 export function IndexComponent() {
     // ref on message
@@ -24,18 +27,16 @@ export function IndexComponent() {
      */
     function sendMessage(e) {
         e.preventDefault();
-        const message = document.querySelector('.message-input-field');
+        const message = document.querySelector('.channel-form-message__input-message');
         ws.current.send(JSON.stringify({message: message.value}));
         console.log(`message sended: ${message.value}`);
     }
     return (
         <div className="channel">
-            <div className='chat'>
-
-            </div>
+            <Chat/>
             <form action="" className="channel-form-message" onSubmit={sendMessage}>
-                <input type="text" className="message-input-field" onChange={handleInput}/>
-                <button type="submit">Send</button>
+                <input type="text" className="channel-form-message__input-message" onChange={handleInput} placeholder="/* type some message... */"/>
+                <button className="channel-form-message__send-button" type="submit">-&gt;</button>
             </form>
         </div>
     );
