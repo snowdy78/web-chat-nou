@@ -1,16 +1,17 @@
 import { Message } from './Message';
-import React from 'react';
-
 import './css/Chat.css';
 
-export function Chat({messages = [], ...props}) {
+export function Chat({messages = [], handleMessageText = (messageText, index) => messageText, ...props}) {
     return ( // TODO author check
-        <div className='chat'>
-            {messages.map((value, index) => 
-                <Message key={`chat_message${index}`}>
-                    {value.message}
-                </Message>
-            )} 
+        <div className='chat-container'>
+            <div className='chat'>
+                {messages.map((value, index) => 
+                    <Message key={`chat_message${index}`} own={value.own}>
+                        {handleMessageText(value.message, index)}
+                    </Message>
+                )}
+
+            </div>
         </div>
     );
 }
