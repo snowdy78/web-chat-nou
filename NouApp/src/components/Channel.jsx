@@ -1,9 +1,9 @@
 import React from 'react';
 import { Message } from './Message';
 import { Chat } from './Chat';
-import './css/IndexComponent.css';
+import './css/Channel.css';
 
-export function IndexComponent() {
+export function Channel() {
     // ref on message
     const message = React.useRef('');
     const [chatMessages, setChatMessages] = React.useState((new Array(2)).fill({message: "some message", own: false}, 0, 2));
