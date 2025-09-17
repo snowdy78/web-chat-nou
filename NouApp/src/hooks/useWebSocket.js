@@ -8,6 +8,6 @@ export function useWebSocket(callback) {
         if (callback) {
             callback();
         }
-    }, []);
+    }, [callback, ws]);
     return ws;
 }

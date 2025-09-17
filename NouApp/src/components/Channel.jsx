@@ -13,7 +13,7 @@ export function Channel() {
         ws.current.onmessage = (messageEvent) => {
             setChatMessages([...chatMessages, ...JSON.parse(messageEvent.data)]);
         }
-    }, []);
+    }, [chatMessages]);
     React.useEffect(() => {
         console.log(chatMessages);
     }, [chatMessages]);
