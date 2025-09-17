@@ -1,0 +1,21 @@
+.login-form {
+    display: grid;
+    width: 400px;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+}
+
+.login-form__user-name-input {
+    border: 0;
+    border-radius: calc(1em + 20px);
+    font-size: 1em;
+    font-weight: lighter;
+    padding: 10px 20px;
+
+}
+.login-form__submit-button {
+    display: flex;
+    width: 100px;
+    justify-content: center;
+    justify-self: center;
+}
