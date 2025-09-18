@@ -58,6 +58,10 @@ function doChannel(clientId, body) {
             authorName: body.username,
             messages: [],
         };
+        const user = users.find(user => user.name === body.username);
+        if (user) {
+            user.channels.push(channels[body.channelName]);
+        }
     }
     else if (channels[body.channelName].members.find(membername => membername === body.username) === undefined) { 
         // join channel member 
