@@ -6,7 +6,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 export function Channels() {
     const store = useStore();
     const user = React.useRef(null);
-    const [channelLoadWarning, setChannelLoadWarning] = React.useState('asdfas');
+    const [channelLoadWarning, setChannelLoadWarning] = React.useState(null);
     const ws = useWebSocket(() => {
         ws.current.onopen = () => {
             if (store.user.channels > 0) {
@@ -40,21 +40,26 @@ export function Channels() {
         warnComponent = <div className='warn-field'>{channelLoadWarning}</div>;
     }
     return (
-        <div className="channel-list">
-            {warnComponent}
-            {user.current.channels.length === 0 
-            ? 
-            <div>
-                Channels does not exist
-            </div> 
-            : 
-            user.current.channels.map((value, index) => (
-                <div key={`channel-list__channel${index}`} className="channel-list__channel">
-                    <div className="channel-list__channel_Name">
+        <div className='channels-component'>
+            <div className='header'>
 
+            </div>
+            <div className="channel-list">
+                {warnComponent}
+                {user.current.channels.length === 0 
+                ? 
+                <div className='hidden-text'>
+                    Channels does not exist
+                </div> 
+                : 
+                user.current.channels.map((value, index) => (
+                    <div key={`channel-list__channel${index}`} className="channel-list__channel">
+                        <div className="channel-list__channel_Name">
+
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }

@@ -1,7 +1,8 @@
 :root {
   --light: rgb(56, 56, 56);
   --dark: rgb(22, 22, 22);
-  --gray: #242424;
+  --gray: #161616;
+  --light-gray: color-mix(in srgb, var(--light) 70%, black 30%);
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -14,6 +15,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.hidden-text {
+  color: rgb(160, 160, 160);
+}
+
 .warn-field {
   --primary: rgb(223, 185, 104);
   color: color-mix(in srgb, var(--primary) 40%, white 60%);
