@@ -13,7 +13,7 @@ export const MUser = types.model('User', {
      * adds channel to user
      * @param {string} name - unique name of the channel
      */
-    makeChannel(name) {
-        self.channelStore.addChannel(name);
+    addChannel(name) {
+        self.channels.push(name);
     },
 }));
