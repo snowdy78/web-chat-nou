@@ -18,4 +18,5 @@
     width: 100px;
     justify-content: center;
     justify-self: center;
+    background-color: var(--light-gray);
 }
