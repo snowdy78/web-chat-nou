@@ -27,7 +27,7 @@ const bodyTypeScripts = {
     'channel': doChannel,
     'user': doUser,
     'userchannels': doUserChannels,
-    'message': doAppendMessage,
+    'message': doMessage,
 };
 
 
@@ -86,7 +86,7 @@ function doUser(clientId, body) {
         user = users[user.name];
     }
     else {
-        users.push(user);
+        users[user.name] = user;
     }
     return [[clientId], {type: 'user', data: user }];
 }
@@ -180,6 +180,7 @@ wss.on('connection', (ws) => {
         console.log(messageInstance);
         initClientUser(clientId, messageInstance.username);
         const [listClientIds, response] = bodyTypeScripts[messageInstance.type](clientId, messageInstance);
+        console.log(response);
         for (const _clientId in listClientIds) {
             clients[_clientId].socket.send(JSON.stringify(response));
         }
