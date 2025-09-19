@@ -39,7 +39,7 @@ const channels = {};
  * @param {string|null} username - client log in username
  * @param {ws.WebSocketServer} socket - client socket
  */
-const clients = [];
+const clients = {};
 /**
  * finds user in user list or push a new
  * @param clientId - request client id 
@@ -146,11 +146,12 @@ function doAppendMessage(clientId, body) {
     return [[idsChannelClients], body];
 }
 wss.on('connection', (ws) => {
-    const clientId = clients.length;
-    clients.push({username: null, socket: ws});
+    const clientId = Object.keys(clients).length;
+    clients[clientId] = {username: null, socket: ws};
     console.log(`Client ${clientId} connected`);
     ws.on('message', (rawMessageInstance, isBinary) => {
         const messageInstance = JSON.parse(isBinary ? rawMessageInstance : rawMessageInstance.toString());
+        console.log(messageInstance);
         const [listClientIds, response] = bodyTypeScripts[messageInstance.type](clientId, messageInstance);
         for (const _clientId in listClientIds) {
             clients[_clientId].socket.send(JSON.stringify(response))
