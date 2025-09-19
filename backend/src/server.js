@@ -32,7 +32,7 @@ const bodyTypeScripts = {
 
 
 const wss = new ws.WebSocketServer({ port: 80 });
-const users = [];
+const users = {};
 const channels = {};
 /**
  * list of client
@@ -40,12 +40,14 @@ const channels = {};
  * @param {ws.WebSocketServer} socket - client socket
  */
 const clients = {};
+function initClientUser(clientId, username) {
+    clients[clientId].username = username;
+}
 /**
  * finds user in user list or push a new
  * @param clientId - request client id 
  * @param body - request body (type: 'user', username: *unique user name*, channelName: *unique channel name*)
  * @returns response body with channel data
- * 
  */
 function doChannel(clientId, body) {
     if (body.type !== 'channel') {
@@ -58,12 +60,12 @@ function doChannel(clientId, body) {
             authorName: body.username,
             messages: [],
         };
-        const user = users.find(user => user.name === body.username);
+        const user = users[body.username];
         if (user) {
-            user.channels.push(channels[body.channelName]);
+            user.channels.push(body.channelName);
         }
     }
-    else if (channels[body.channelName].members.find(membername => membername === body.username) === undefined) { 
+    else if (channels[body.channelName].members.every(membername => membername !== body.username)) { 
         // join channel member 
         channels[body.channelName].members.push(body.username);
     }
@@ -80,13 +82,12 @@ function doUser(clientId, body) {
         throw Error("broken body type"); // server side error
     }
     let user = { name: body.username, channels: [] };
-    if (users.find((value) => user.name === value.name) !== undefined) {
+    if (users[body.username]) {
         user = users[user.name];
     }
     else {
         users.push(user);
     }
-    clients[clientId].username = user.name;
     return [[clientId], {type: 'user', data: user }];
 }
 /**
@@ -100,17 +101,16 @@ function doUserChannels(clientId, body) {
         throw Error("broken body type"); // server side error
     }
     let result = { type: 'userchannels', username: body.username };
-    const user = users.find((user) => body.username === user.name);
-    if (user === undefined) {
+    const user = users[body.username];
+    if (!user) {
         return [[clientId], {...result, error: {message: 'user does not exist.'}}];
-
     }
-    result.channels = [];
+    result.data.channels = [];
     for (const channelName in user.channels) {
         const channelInstance = channels.find((channel) => channelName === channel.name);
         const truncatedData = {name: channelInstance.name, lastMessage: channelInstance.messages[channelInstance.messages.length - 1]};
         if (channelInstance !== undefined) { // push the found channel to result
-            result.channels.push(channelInstance);
+            result.data.channels.push(truncatedData);
         }
         else { // add a warning to result if channel not found
             result.warn = result.warn ?? {};
@@ -121,20 +121,46 @@ function doUserChannels(clientId, body) {
     return [[clientId], result];
 }
 /**
- * appends message to the channel chat
+ * appends/searching the message in the channel chat
  * @param clientId - request author 
- * @param body - request body (type: 'userchannels', username: *unique user name*, channelName: *unique channel name*, data: {text: *message text*})
+ * @param body - request body (type: 'message', username: *unique user name*, channelName: *unique channel name*, data: {text: *message text*})
  * @returns response body with message data
  */
-function doAppendMessage(clientId, body) {
+function doMessage(clientId, body) {
     if (body.type !== 'message') {
         throw Error("broken body type"); // server side error
     }
     if (channels[body.channelName] === undefined) {
-        return [[clientId], {...body, error: {message: 'failed to message. unknown channel.'}}]
+        return [[clientId], {...body, error: {message: 'failed to message. unknown channel.'}}];
     }
     const channel = channels[body.channelName];
-    channel.messages.push(body.data.text);
+    // try to search the message
+    if (body.searchFilters) { // if body contains find attr then find and return message
+        const filter = body.searchFilters;
+        if (Object.keys(filter).length === 0) {
+            // search message by same value
+            const message = channels.messages.find(msg => {
+                const result = true;
+                for (const key in Object.keys(msg)) {
+                    if (filter[key] !== undefined) {
+                        result = result && filter[key] === message[key];
+                    }
+                }
+                return result;
+            });
+            if (message) {
+                return [[clientId], {...body, data: message}]; // message found
+            } else {
+                return [[clientId], {...body, error: {message: 'No messages not was found.'}}];
+            }
+        }
+        else {
+            return [[clientId], {...body, error: {message: 'No filters.'}}]
+        }
+    }
+    // pushing new message
+    channel.messages.push({authorName: username, text: body.data.text});
+    // choosing channel member clients
     let idsChannelClients = [];
     for (let i = 0; i < clients.length; i++) {
         const client = clients[i];
@@ -152,9 +178,10 @@ wss.on('connection', (ws) => {
     ws.on('message', (rawMessageInstance, isBinary) => {
         const messageInstance = JSON.parse(isBinary ? rawMessageInstance : rawMessageInstance.toString());
         console.log(messageInstance);
+        initClientUser(clientId, messageInstance.username);
         const [listClientIds, response] = bodyTypeScripts[messageInstance.type](clientId, messageInstance);
         for (const _clientId in listClientIds) {
-            clients[_clientId].socket.send(JSON.stringify(response))
+            clients[_clientId].socket.send(JSON.stringify(response));
         }
     });
     ws.on('close', () => {
