@@ -66,8 +66,8 @@ function doChannel(clientId, body) {
             authorName: body.username,
             messages: [],
         };
-            user.channels.push(body.channelName);
-        }
+        user.channels.push(body.channelName);
+    }
     else if (channel.members.every(membername => membername !== body.username)) { 
         // join channel member 
         channel.members.push(body.username);
@@ -166,7 +166,8 @@ function doMessage(clientId, body) {
         }
     }
     // pushing new message
-    channel.messages.push({authorName: body.username, text: body.data.text});
+    const message = {authorName: body.username, text: body.data.text};
+    channel.messages.push(message);
     // choosing channel member clients
     let channelMembersIdsOfClients = [];
     for (const cid in clients) {
@@ -175,7 +176,7 @@ function doMessage(clientId, body) {
             channelMembersIdsOfClients.push(cid);
         }
     }
-    return [channelMembersIdsOfClients, body];
+    return [channelMembersIdsOfClients, {...body, data: message}];
 }
 wss.on('connection', (ws) => {
     const clientId = uuid();
