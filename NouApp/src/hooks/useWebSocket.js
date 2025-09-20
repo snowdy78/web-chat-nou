@@ -8,6 +8,12 @@ export function useWebSocket(callback) {
         if (callback) {
             callback();
         }
-    }, [callback, ws]);
+        return () => {
+            if (ws.current.readyState) {
+                ws.current.close();
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     return ws;
 }

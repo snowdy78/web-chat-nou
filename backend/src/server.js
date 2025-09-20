@@ -22,6 +22,7 @@ sample of error response data:
 */
 
 const ws = require('ws');
+const uuid = require('uuid').v4;
 
 const bodyTypeScripts = { 
     'channel': doChannel,
@@ -53,21 +54,25 @@ function doChannel(clientId, body) {
     if (body.type !== 'channel') {
         throw Error("broken body type"); // server side error
     }
-    if (!channels[body.channelName]) { // create a new channel
+    const user = users[body.username];
+    if (!user) {
+        return [[clientId], {...body, error: {message: 'user not found.'}}];
+    }
+    const channel = channels[body.channelName];
+    if (!channel) { // create a new channel
         channels[body.channelName] = {
             name: body.channelName,
             members: [body.username],
             authorName: body.username,
             messages: [],
         };
-        const user = users[body.username];
-        if (user) {
-            user.channels.push(body.channelName);
-        }
+        user.channels.push(body.channelName);
     }
-    else if (channels[body.channelName].members.every(membername => membername !== body.username)) { 
+    else if (channel.members.every(membername => membername !== body.username)) { 
         // join channel member 
-        channels[body.channelName].members.push(body.username);
+        channel.members.push(body.username);
+        // add channel to user channels
+        user.channels.push(body.channelName);
     }
     return [[clientId], {...body, data: channels[body.channelName]}]
 }
@@ -88,6 +93,7 @@ function doUser(clientId, body) {
     else {
         users[user.name] = user;
     }
+    clients[clientId].username = body.username;
     return [[clientId], {type: 'user', data: user }];
 }
 /**
@@ -100,16 +106,17 @@ function doUserChannels(clientId, body) {
     if (body.type !== 'userchannels') {
         throw Error("broken body type"); // server side error
     }
-    let result = { type: 'userchannels', username: body.username };
+    let result = { ...body };
     const user = users[body.username];
     if (!user) {
         return [[clientId], {...result, error: {message: 'user does not exist.'}}];
     }
+    result.data = {};
     result.data.channels = [];
-    for (const channelName in user.channels) {
-        const channelInstance = channels.find((channel) => channelName === channel.name);
-        const truncatedData = {name: channelInstance.name, lastMessage: channelInstance.messages[channelInstance.messages.length - 1]};
-        if (channelInstance !== undefined) { // push the found channel to result
+    for (const i in user.channels) {
+        const channel = channels[user.channels[i]];
+        if (channel) {
+            const truncatedData = {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]};
             result.data.channels.push(truncatedData);
         }
         else { // add a warning to result if channel not found
@@ -159,30 +166,35 @@ function doMessage(clientId, body) {
         }
     }
     // pushing new message
-    channel.messages.push({authorName: username, text: body.data.text});
+    const message = {authorName: body.username, text: body.data.text};
+    channel.messages.push(message);
     // choosing channel member clients
-    let idsChannelClients = [];
-    for (let i = 0; i < clients.length; i++) {
-        const client = clients[i];
-        const membername = channel.members.find(membername => membername === client.username);
+    let channelMembersIdsOfClients = [];
+    for (const cid in clients) {
+        const membername = channel.members.find(membername => membername === clients[cid].username);
         if (membername !== undefined) {
-            idsChannelClients.push(client);
+            channelMembersIdsOfClients.push(cid);
         }
     }
-    return [[idsChannelClients], body];
+    return [channelMembersIdsOfClients, {...body, data: message}];
 }
 wss.on('connection', (ws) => {
-    const clientId = Object.keys(clients).length;
+    const clientId = uuid();
     clients[clientId] = {username: null, socket: ws};
     console.log(`Client ${clientId} connected`);
     ws.on('message', (rawMessageInstance, isBinary) => {
         const messageInstance = JSON.parse(isBinary ? rawMessageInstance : rawMessageInstance.toString());
         console.log(messageInstance);
         initClientUser(clientId, messageInstance.username);
+        if (!bodyTypeScripts[messageInstance.type]) {
+            clients[clientId].socket.send(JSON.stringify({error: {message: `unknown body type '${messageInstance.type}'.`}}));
+            return;
+        }
         const [listClientIds, response] = bodyTypeScripts[messageInstance.type](clientId, messageInstance);
         console.log(response);
-        for (const _clientId in listClientIds) {
-            clients[_clientId].socket.send(JSON.stringify(response));
+        for (const i in listClientIds) {
+            console.log(`sending... `, listClientIds[i]);
+            clients[listClientIds[i]].socket.send(JSON.stringify(response));
         }
     });
     ws.on('close', () => {

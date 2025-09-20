@@ -1,48 +1,96 @@
-import React from 'react';
-import { Message } from './Message';
-import { Chat } from './Chat';
-import './css/Channel.css';
+import React from "react";
+import { Chat } from "./Chat";
+import "./css/Channel.css";
+import { useParams } from "react-router-dom";
+import { useWebSocket, useStore } from "../hooks";
+import { Link } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 
-export function Channel() {
-    // ref on message
-    const message = React.useRef('');
-    const [chatMessages, setChatMessages] = React.useState((new Array(2)).fill({message: "some message", own: false}, 0, 2));
-    const ws = React.useRef(null);
-    React.useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:80');
-        ws.current.onmessage = (messageEvent) => {
-            setChatMessages([...chatMessages, ...JSON.parse(messageEvent.data)]);
+export const Channel = observer(function() {
+  // ref on message
+  const params = useParams();
+  const store = useStore();
+  const responseActions = {
+    'message': onMessage,
+    'channel': onChannel,
+  };
+  const ws = useWebSocket(() => {
+    ws.current.onopen = () => {
+      ws.current.onmessage = (messageEvent) => {
+        const responseBody = JSON.parse(messageEvent.data);
+        if (responseBody.error) {
+          console.error(responseBody.error.message);
+          return;
         }
-    }, [chatMessages]);
-    React.useEffect(() => {
-        console.log(chatMessages);
-    }, [chatMessages]);
-    /**
-     * message input field handler
-     * @param e - Event
-     */
-    function handleInput(e) {
-        message.current = e.target.value;
-        console.log(message.current);
-    }
-    /**
-     * send message function
-     * @param e - Event 
-     */
-    function sendMessage(e) {
-        e.preventDefault();
-        const message = document.querySelector('.channel-form-message__input-message');
-        ws.current.send(JSON.stringify({message: message.value}));
-        console.log(`message sended: ${message.value}`);
-        message.value = '';
-    }
-    return (
-        <div className="channel">
-            <Chat messages={chatMessages} handleMessageText={(message, index) => message + `${index}`}/>
-            <form action="" className="channel-form-message" onSubmit={sendMessage}>
-                <input type="text" className="channel-form-message__input-message" onChange={handleInput} placeholder="/* type some message... */"/>
-                <button className="channel-form-message__send-button" type="submit">-&gt;</button>
-            </form>
-        </div>
+        if (!responseBody.type || !responseActions[responseBody.type]) {
+          return;
+        }
+        responseActions[responseBody.type](responseBody);
+      };
+      if (messages.length === 0) {
+        // getting channel messages
+        ws.current.send(JSON.stringify({type: 'channel', username: store.user.name, channelName: params.name}));
+      }
+    };
+  });
+  
+  const [messages, setMessages] = React.useState([]);
+  React.useEffect(() => {
+    const chat = document.querySelector('.chat-container');
+    chat.scrollTo(0, chat.scrollHeight);
+  }, [messages]);
+  function transformMessageFromServer(message) {
+    return {own: store.user.name === message.authorName, message: message.text}
+  }
+  function onMessage(responseBody) {
+    console.log('message');
+    const message = responseBody.data;
+    const transformedMessage = transformMessageFromServer(message);
+    setMessages((prevMessages) => [...prevMessages, transformedMessage]);
+  }
+  function onChannel(responseBody) {
+    setMessages(() => responseBody.data.messages.map(message => (transformMessageFromServer(message))))
+  }
+  /**
+   * send message function
+   * @param e - Event
+   */
+  function sendMessage(e) {
+    e.preventDefault();
+    const message = document.querySelector(
+      ".channel-form-message__input-message"
     );
-}
+    ws.current.send(
+      JSON.stringify({
+        type: "message",
+        username: store.user.name,
+        channelName: params.name,
+        data: { text: message.value },
+      })
+    );
+    message.value = "";
+  }
+  return (
+    <div className="channel">
+      <div className="channel__header">
+        <Link to="/channels" className="channel__header__close-channel">
+          &lt;
+        </Link>
+        <div className="channel__header__channel-name">{params.name}</div>
+      </div>
+      <Chat
+        messages={messages}
+      />
+      <form className="channel-form-message" onSubmit={sendMessage}>
+        <input
+          type="text"
+          className="channel-form-message__input-message"
+          placeholder="/* type some message... */"
+        />
+        <button className="channel-form-message__send-button" type='submit'>
+          -&gt;
+        </button>
+      </form>
+    </div>
+  );
+});

@@ -18,17 +18,15 @@ import { StoreContext } from './hooks/useStore';
 export function AppComponent() {
   const [store] = React.useState(MRootStore.create({}))
   return (
-	<React.StrictMode>
-		<StoreContext.Provider value={{store}}>
-			<BrowserRouter>
-				<Routes>
-					<Route path="/" Component={() => <SessionCreate />}/>
-					<Route path="/channels" Component={() => <Channels/>}/>
-					<Route path="/channel/:name" Component={() => <Channel/>}/>
-				</Routes>
-			</BrowserRouter>
-		</StoreContext.Provider>
-	</React.StrictMode>
+	<StoreContext.Provider value={{store}}>
+		<BrowserRouter>
+			<Routes>
+				<Route path="/" Component={() => <SessionCreate />}/>
+				<Route path="/channels" Component={() => <Channels/>}/>
+				<Route path="/channel/:name" Component={() => <Channel/>}/>
+			</Routes>
+		</BrowserRouter>
+	</StoreContext.Provider>
   )
 }
 

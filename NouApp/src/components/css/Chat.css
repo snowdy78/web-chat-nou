@@ -4,7 +4,6 @@
     overflow-x: hidden;
     overflow-y: scroll;
     height: 400px;
-    margin: 5% 0;
     background-color: var(--light);
     border-radius: 10px;
     align-items: flex-end;
