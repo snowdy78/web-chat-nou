@@ -8,6 +8,9 @@ export function useWebSocket(callback, deps = []) {
         if (callback) {
             callback();
         }
+        return () => {
+            ws.current.close();
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [callback, ws, ...deps]);
     return ws;
