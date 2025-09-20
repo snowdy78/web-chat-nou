@@ -1,8 +1,7 @@
 import React from 'react';
 import './css/SessionCreate.css';
 import { SERVER_URL } from '../config';
-import { useStore } from '../hooks/useStore';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useStore, useWebSocket } from '../hooks';
 
 export function SessionCreate() {
     const ws = useWebSocket(() => {

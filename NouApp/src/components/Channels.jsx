@@ -1,7 +1,6 @@
 import React from 'react';
-import { useStore } from '../hooks/useStore';
 import './css/Channels.css';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useWebSocket, useStore } from '../hooks';
 import {Link} from 'react-router-dom';
 
 export function Channels() {
