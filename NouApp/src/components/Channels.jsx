@@ -7,19 +7,21 @@ import { observer } from "mobx-react-lite";
 export const Channels = observer(function() {
     const store = useStore();
     const [channelLoadWarning, setChannelLoadWarning] = React.useState(null);
+    const [channelError, setChannelError] = React.useState(null);
     const [channels, setChannels] = React.useState([]);
-    const webSocketActions = {
+    const webSocketActions = React.useRef({
         'userchannels': onUserChannels,
         'channel': onChannel,
         'message': onMessage,
-    };
+    });
 
     const ws = useWebSocket(() => {
         ws.current.onopen = () => {
             ws.current.onmessage = (messageEvent) => {
-                const messageData = JSON.parse(messageEvent.data);
-                if (messageData && messageData.type && webSocketActions[messageData.type]) {
-                    webSocketActions[messageData.type](messageData);
+                const response = JSON.parse(messageEvent.data);
+                console.log(response.type);
+                if (response && response.type && webSocketActions.current[response.type]) {
+                    webSocketActions.current[response.type](response);
                 }
             };
             if (store.user.channels.length > 0) {
@@ -33,35 +35,34 @@ export const Channels = observer(function() {
         }
     }, [store]);
     function onChannel(data) {
-        if (data.username !== store.user.name) {
-            return;
-        }
         const channel = data.data;
         store.appendUserChannel(channel.name);
         const userData = { name: store.user.name, channels: [...channels.map(v => v.name), channel.name] };
 		sessionStorage.setItem('user', JSON.stringify(userData));
-        setChannels([...channels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]);
+        setChannels((prevChannels) => [...prevChannels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]);
     }
     function onUserChannels(data) {
-        if (data.username !== store.user.name) {
-            return;
+        if (data.error) {
+            setChannelError(data.error.message);
         }
         if (data.warn) {
             setChannelLoadWarning('Not all channels are load.');
-            return;
         }
-        setChannels([...data.data.channels]);
+        else {
+            setChannels(() => [...data.data.channels]);
+        }
     }
     function onMessage(data) {
-        if (data.username !== store.user.name) {
-            return;
-        }
-        const channelIndex = channels.findIndex(data.channelName);
-        if (channelIndex === -1) {
-            return;
-        }
-        channels[channelIndex].lastMessage = data.data;
-        setChannels([...channels]);
+        setChannels((prevChannels) => {
+            const channelIndex = prevChannels.findIndex(channel => channel.name === data.channelName);
+            console.log(data);
+            if (channelIndex === -1) {
+                console.warn('channel not found', data.channelName, channels);
+                return prevChannels;
+            }
+            prevChannels[channelIndex].lastMessage = data.data;
+            return [...prevChannels];
+        });
     }
     function onChannelAdd(event) {
         event.preventDefault();
@@ -70,10 +71,6 @@ export const Channels = observer(function() {
             ws.current.send(JSON.stringify({type: 'channel', username: store.user.name, channelName: channel.value }));
             channel.value = '';
         }
-    }
-    let warnComponent;
-    if (channelLoadWarning) {
-        warnComponent = <div className='warn-field'>{channelLoadWarning}</div>;
     }
     return (
         <div className='channels-component'>
@@ -87,7 +84,12 @@ export const Channels = observer(function() {
                 
             </div>
             <div className="channel-list">
-                {warnComponent}
+                {
+                    channelError ? <div className='error-field'>{channelLoadWarning}</div> : null
+                }
+                {
+                    channelLoadWarning ? <div className='warn-field'>{channelLoadWarning}</div> : null
+                }
                 {channels.length === 0
                 ? 
                 <div className='hidden-text'>
@@ -100,7 +102,7 @@ export const Channels = observer(function() {
                             <Link to={`/channel/${value.name}`}>{value.name}</Link>
                         </div>                        
                         <div className="channel-list__channel__last-message">
-                            {value.lastMessage ? `${value.lastMessage.authorName}:${value.lastMessage.text}` : 'No messages sended'} 
+                            {value.lastMessage ? `${value.lastMessage.authorName}: ${value.lastMessage.text}` : 'No messages sended'} 
                         </div>
                     </div>
                 ))}
