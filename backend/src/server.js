@@ -22,6 +22,7 @@ sample of error response data:
 */
 
 const ws = require('ws');
+const uuid = require('uuid').v4;
 
 const bodyTypeScripts = { 
     'channel': doChannel,
@@ -88,6 +89,7 @@ function doUser(clientId, body) {
     else {
         users[user.name] = user;
     }
+    clients[clientId].username = body.username;
     return [[clientId], {type: 'user', data: user }];
 }
 /**
@@ -162,28 +164,32 @@ function doMessage(clientId, body) {
     // pushing new message
     channel.messages.push({authorName: body.username, text: body.data.text});
     // choosing channel member clients
-    let idsChannelClients = [];
-    for (let i = 0; i < clients.length; i++) {
-        const client = clients[i];
-        const membername = channel.members.find(membername => membername === client.username);
+    let channelMembersIdsOfClients = [];
+    for (const cid in clients) {
+        const membername = channel.members.find(membername => membername === clients[cid].username);
         if (membername !== undefined) {
-            idsChannelClients.push(client);
+            channelMembersIdsOfClients.push(cid);
         }
     }
-    return [[idsChannelClients], body];
+    return [channelMembersIdsOfClients, body];
 }
 wss.on('connection', (ws) => {
-    const clientId = Object.keys(clients).length;
+    const clientId = uuid();
     clients[clientId] = {username: null, socket: ws};
     console.log(`Client ${clientId} connected`);
     ws.on('message', (rawMessageInstance, isBinary) => {
         const messageInstance = JSON.parse(isBinary ? rawMessageInstance : rawMessageInstance.toString());
         console.log(messageInstance);
         initClientUser(clientId, messageInstance.username);
+        if (!bodyTypeScripts[messageInstance.type]) {
+            clients[clientId].socket.send(JSON.stringify({error: {message: `unknown body type '${messageInstance.type}'.`}}));
+            return;
+        }
         const [listClientIds, response] = bodyTypeScripts[messageInstance.type](clientId, messageInstance);
         console.log(response);
-        for (const _clientId in listClientIds) {
-            clients[_clientId].socket.send(JSON.stringify(response));
+        for (const i in listClientIds) {
+            console.log(`sending... `, listClientIds[i]);
+            clients[listClientIds[i]].socket.send(JSON.stringify(response));
         }
     });
     ws.on('close', () => {
