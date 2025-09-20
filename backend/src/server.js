@@ -54,21 +54,25 @@ function doChannel(clientId, body) {
     if (body.type !== 'channel') {
         throw Error("broken body type"); // server side error
     }
-    if (!channels[body.channelName]) { // create a new channel
+    const user = users[body.username];
+    if (!user) {
+        return [[clientId], {...body, error: {message: 'user not found.'}}];
+    }
+    const channel = channels[body.channelName];
+    if (!channel) { // create a new channel
         channels[body.channelName] = {
             name: body.channelName,
             members: [body.username],
             authorName: body.username,
             messages: [],
         };
-        const user = users[body.username];
-        if (user) {
             user.channels.push(body.channelName);
         }
-    }
-    else if (channels[body.channelName].members.every(membername => membername !== body.username)) { 
+    else if (channel.members.every(membername => membername !== body.username)) { 
         // join channel member 
-        channels[body.channelName].members.push(body.username);
+        channel.members.push(body.username);
+        // add channel to user channels
+        user.channels.push(body.channelName);
     }
     return [[clientId], {...body, data: channels[body.channelName]}]
 }
