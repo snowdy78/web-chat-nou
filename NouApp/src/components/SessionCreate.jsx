@@ -2,8 +2,9 @@ import React from 'react';
 import './css/SessionCreate.css';
 import { SERVER_URL } from '../config';
 import { useStore, useWebSocket } from '../hooks';
+import { observer } from "mobx-react-lite";
 
-export function SessionCreate() {
+export const SessionCreate = observer(function() {
     const ws = useWebSocket(() => {
         ws.current.onmessage = (messageEvent) => {
             const messageData = JSON.parse(messageEvent.data);
@@ -29,7 +30,7 @@ export function SessionCreate() {
     function onSubmit(e) {
         e.preventDefault();
         const username = document.querySelector('input').value;
-        
+
         ws.current.send(JSON.stringify({type: 'user', username}));
     }
     return (
@@ -43,4 +44,4 @@ export function SessionCreate() {
             </form>
         </div>
     );
-}
+});

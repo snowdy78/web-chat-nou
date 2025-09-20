@@ -4,16 +4,32 @@ import { Chat } from "./Chat";
 import "./css/Channel.css";
 import { useParams } from "react-router-dom";
 import { useWebSocket, useStore } from "../hooks";
+import { Link } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 
-export function Channel() {
+export const Channel = observer(function() {
   // ref on message
   const message = React.useRef("");
   const params = useParams();
   const [chatMessages, setChatMessages] = React.useState([]);
   const store = useStore();
+  const messages = React.useState([]);
   const ws = useWebSocket(() => {
-    ws.current.onmessage = (messageEvent) => {
-      setChatMessages([...chatMessages, ...JSON.parse(messageEvent.data)]);
+    ws.current.onopen = () => {
+      ws.current.onmessage = (messageEvent) => {
+        const responseBody = JSON.parse(messageEvent.data);
+        if (!responseBody.type || responseBody.type !== 'message') {
+          return;
+        }
+        if (responseBody.error) {
+          console.error(responseBody.error.message);
+        }
+        setChatMessages([...chatMessages]);
+      };
+      if (messages.length === 0) {
+        // getting channel messages
+        ws.current.send(JSON.stringify({}))
+      }
     };
   }, [chatMessages]);
   /**
@@ -22,7 +38,6 @@ export function Channel() {
    */
   function handleInput(e) {
     message.current = e.target.value;
-    console.log(message.current);
   }
   /**
    * send message function
@@ -37,16 +52,18 @@ export function Channel() {
       JSON.stringify({
         type: "message",
         username: store.user.name,
-        message: message.value,
+        channelName: params.name,
+        data: { text: message.value },
       })
     );
-    console.log(`message sended: ${message.value}`);
     message.value = "";
   }
   return (
     <div className="channel">
       <div className="channel__header">
-        <div className="channel__header__close-channel">&lt;</div>
+        <Link to="/channels" className="channel__header__close-channel">
+          &lt;
+        </Link>
         <div className="channel__header__channel-name">{params.name}</div>
       </div>
       <Chat
@@ -66,4 +83,4 @@ export function Channel() {
       </form>
     </div>
   );
-}
+});

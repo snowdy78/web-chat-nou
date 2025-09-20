@@ -2,8 +2,9 @@ import React from 'react';
 import './css/Channels.css';
 import { useWebSocket, useStore } from '../hooks';
 import {Link} from 'react-router-dom';
+import { observer } from "mobx-react-lite";
 
-export function Channels() {
+export const Channels = observer(function() {
     const store = useStore();
     const [channelLoadWarning, setChannelLoadWarning] = React.useState(null);
     const [channels, setChannels] = React.useState([]);
@@ -18,12 +19,11 @@ export function Channels() {
             ws.current.onmessage = (messageEvent) => {
                 const messageData = JSON.parse(messageEvent.data);
                 if (messageData && messageData.type && webSocketActions[messageData.type]) {
-                    console.log(messageData.type);
                     webSocketActions[messageData.type](messageData);
                 }
             };
-            if (store.user.channels > 0) {
-                ws.current.send(JSON.stringify({ type: 'userchannels', username: store.user.name }));
+            if (store.user.channels.length > 0) {
+                ws.current.send(JSON.stringify({ type: 'userchannels', username: store.user.name}));
             }
         };
     });
@@ -31,14 +31,15 @@ export function Channels() {
         if (!store.user) {
             window.location = '/';
         }
-    }, [store.user]);
-
+    }, [store]);
     function onChannel(data) {
         if (data.username !== store.user.name) {
             return;
         }
         const channel = data.data;
-        store.user.addChannel(channel.name);
+        store.appendUserChannel(channel.name);
+        const userData = { name: store.user.name, channels: [...channels.map(v => v.name), channel.name] };
+		sessionStorage.setItem('user', JSON.stringify(userData));
         setChannels([...channels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]);
     }
     function onUserChannels(data) {
@@ -49,8 +50,7 @@ export function Channels() {
             setChannelLoadWarning('Not all channels are load.');
             return;
         }
-        store.user.addChannel(data.channelName);
-        setChannels([...channels, ...data.data.channels]);
+        setChannels([...data.data.channels]);
     }
     function onMessage(data) {
         if (data.username !== store.user.name) {
@@ -107,4 +107,4 @@ export function Channels() {
             </div>
         </div>
     );
-}
+});

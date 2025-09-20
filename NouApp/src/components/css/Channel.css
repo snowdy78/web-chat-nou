@@ -47,11 +47,14 @@
     line-height: 70px;
     border-radius: 10px 10px 10px 0;
     transition: background 0.2s;
+    color: white;
 }
 .channel__header__close-channel:hover { /* button '<' */
     font-weight: 500;
     cursor: pointer;
     background-color: color-mix(in srgb, black 20%, transparent 80%);
+    color: white;
+    text-decoration: none;
 }
 .channel__header__channel-name {
     transform: translateX(-25px); /* decrease button '<' size to centralize channel name */
