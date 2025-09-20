@@ -43,7 +43,6 @@ export const Channel = observer(function() {
     return {own: store.user.name === message.authorName, message: message.text}
   }
   function onMessage(responseBody) {
-    console.log('message');
     const message = responseBody.data;
     const transformedMessage = transformMessageFromServer(message);
     setMessages((prevMessages) => [...prevMessages, transformedMessage]);

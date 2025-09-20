@@ -19,7 +19,6 @@ export const Channels = observer(function() {
         ws.current.onopen = () => {
             ws.current.onmessage = (messageEvent) => {
                 const response = JSON.parse(messageEvent.data);
-                console.log(response.type);
                 if (response && response.type && webSocketActions.current[response.type]) {
                     webSocketActions.current[response.type](response);
                 }
@@ -55,7 +54,6 @@ export const Channels = observer(function() {
     function onMessage(data) {
         setChannels((prevChannels) => {
             const channelIndex = prevChannels.findIndex(channel => channel.name === data.channelName);
-            console.log(data);
             if (channelIndex === -1) {
                 console.warn('channel not found', data.channelName, channels);
                 return prevChannels;
