@@ -1,5 +1,4 @@
 import React from "react";
-import { Message } from "./Message";
 import { Chat } from "./Chat";
 import "./css/Channel.css";
 import { useParams } from "react-router-dom";
@@ -9,35 +8,48 @@ import { observer } from "mobx-react-lite";
 
 export const Channel = observer(function() {
   // ref on message
-  const message = React.useRef("");
   const params = useParams();
-  const [chatMessages, setChatMessages] = React.useState([]);
   const store = useStore();
-  const messages = React.useState([]);
+  const responseActions = {
+    'message': onMessage,
+    'channel': onChannel,
+  };
   const ws = useWebSocket(() => {
     ws.current.onopen = () => {
       ws.current.onmessage = (messageEvent) => {
         const responseBody = JSON.parse(messageEvent.data);
-        if (!responseBody.type || responseBody.type !== 'message') {
-          return;
-        }
         if (responseBody.error) {
           console.error(responseBody.error.message);
+          return;
         }
-        setChatMessages([...chatMessages]);
+        if (!responseBody.type || !responseActions[responseBody.type]) {
+          return;
+        }
+        responseActions[responseBody.type](responseBody);
       };
       if (messages.length === 0) {
         // getting channel messages
-        ws.current.send(JSON.stringify({}))
+        ws.current.send(JSON.stringify({type: 'channel', username: store.user.name, channelName: params.name}));
       }
     };
-  }, [chatMessages]);
-  /**
-   * message input field handler
-   * @param e - Event
-   */
-  function handleInput(e) {
-    message.current = e.target.value;
+  });
+  
+  const [messages, setMessages] = React.useState([]);
+  React.useEffect(() => {
+    const chat = document.querySelector('.chat-container');
+    chat.scrollTo(0, chat.scrollHeight);
+  }, [messages]);
+  function transformMessageFromServer(message) {
+    return {own: store.user.name === message.authorName, message: message.text}
+  }
+  function onMessage(responseBody) {
+    console.log('message');
+    const message = responseBody.data;
+    const transformedMessage = transformMessageFromServer(message);
+    setMessages((prevMessages) => [...prevMessages, transformedMessage]);
+  }
+  function onChannel(responseBody) {
+    setMessages(() => responseBody.data.messages.map(message => (transformMessageFromServer(message))))
   }
   /**
    * send message function
@@ -67,17 +79,15 @@ export const Channel = observer(function() {
         <div className="channel__header__channel-name">{params.name}</div>
       </div>
       <Chat
-        messages={chatMessages}
-        handleMessageText={(message, index) => message + `${index}`}
+        messages={messages}
       />
-      <form action="" className="channel-form-message" onSubmit={sendMessage}>
+      <form className="channel-form-message" onSubmit={sendMessage}>
         <input
           type="text"
           className="channel-form-message__input-message"
-          onChange={handleInput}
           placeholder="/* type some message... */"
         />
-        <button className="channel-form-message__send-button" type="submit">
+        <button className="channel-form-message__send-button" type='submit'>
           -&gt;
         </button>
       </form>
