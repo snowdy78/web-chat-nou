@@ -1,13 +1,14 @@
 import React from 'react';
 import { SERVER_URL } from '../config';
 
-export function useWebSocket(callback) {
+export function useWebSocket(callback, deps = []) {
     const ws = React.useRef(null);
     React.useEffect(() => {
         ws.current = new WebSocket(SERVER_URL);
         if (callback) {
             callback();
         }
-    }, [callback, ws]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [callback, ws, ...deps]);
     return ws;
 }
