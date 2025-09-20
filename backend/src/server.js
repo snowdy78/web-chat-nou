@@ -160,7 +160,7 @@ function doMessage(clientId, body) {
         }
     }
     // pushing new message
-    channel.messages.push({authorName: username, text: body.data.text});
+    channel.messages.push({authorName: body.username, text: body.data.text});
     // choosing channel member clients
     let idsChannelClients = [];
     for (let i = 0; i < clients.length; i++) {
