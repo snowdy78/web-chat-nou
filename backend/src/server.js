@@ -100,16 +100,17 @@ function doUserChannels(clientId, body) {
     if (body.type !== 'userchannels') {
         throw Error("broken body type"); // server side error
     }
-    let result = { type: 'userchannels', username: body.username };
+    let result = { ...body };
     const user = users[body.username];
     if (!user) {
         return [[clientId], {...result, error: {message: 'user does not exist.'}}];
     }
+    result.data = {};
     result.data.channels = [];
-    for (const channelName in user.channels) {
-        const channelInstance = channels.find((channel) => channelName === channel.name);
-        const truncatedData = {name: channelInstance.name, lastMessage: channelInstance.messages[channelInstance.messages.length - 1]};
-        if (channelInstance !== undefined) { // push the found channel to result
+    for (const i in user.channels) {
+        const channel = channels[user.channels[i]];
+        if (channel) {
+            const truncatedData = {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]};
             result.data.channels.push(truncatedData);
         }
         else { // add a warning to result if channel not found
