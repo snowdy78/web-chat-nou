@@ -10,5 +10,8 @@ export const MRootStore = types.model('RootStore', {
 }).actions(self => ({
     initUser(name, channels) {
         self.user = MUser.create({name, channels});
+    },
+    appendUserChannel(uniqueName) {
+        self.user.addChannel(uniqueName);
     }
 }));
