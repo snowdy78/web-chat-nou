@@ -102,7 +102,7 @@ export function ChannelInfo() {
                 {
                   isChannelAuthor
                   ?
-                  <button className="channel-info__member-list__member__kick bi-ban" onClick={(e) => removeMember(e, index)}></button>
+                  <div className='channel-info__member-list__member__kick'><button className="bi-ban" onClick={(e) => removeMember(e, index)}/></div>
                   : 
                   null
                 }
