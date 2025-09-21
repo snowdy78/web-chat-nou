@@ -13,13 +13,17 @@ export const Channels = observer(function() {
         'userchannels': onUserChannels,
         'channel': onChannel,
         'message': onMessage,
+        'removemember': onRemoveMember,
     });
 
     const ws = useWebSocket(() => {
         ws.current.onopen = () => {
             ws.current.onmessage = (messageEvent) => {
                 const response = JSON.parse(messageEvent.data);
-                console.log(response.type);
+                if (response.error) {
+                    setChannelError(response.error.message);
+                    return;
+                }
                 if (response && response.type && webSocketActions.current[response.type]) {
                     webSocketActions.current[response.type](response);
                 }
@@ -34,12 +38,28 @@ export const Channels = observer(function() {
             window.location = '/';
         }
     }, [store]);
+    function onRemoveMember(body) {
+        setChannels((prevChannels) => {
+            if (store.user.name !== body.membername) {
+                return prevChannels;
+            }
+            const channelIndex = prevChannels.find(channelData => channelData.name === body.channelName);
+            prevChannels.splice(channelIndex, 1);
+            return [...prevChannels];
+        });
+    } 
     function onChannel(data) {
-        const channel = data.data;
-        store.appendUserChannel(channel.name);
-        const userData = { name: store.user.name, channels: [...channels.map(v => v.name), channel.name] };
-		sessionStorage.setItem('user', JSON.stringify(userData));
-        setChannels((prevChannels) => [...prevChannels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]);
+        setChannels((prevChannels) => {
+            const channel = data.data;
+            if (prevChannels.find(c => channel.name === c.name)) {
+                return prevChannels;
+            }
+            store.appendUserChannel(channel.name);
+            const userData = { name: store.user.name, channels: [...channels.map(v => v.name), channel.name] };
+            sessionStorage.setItem('user', JSON.stringify(userData));
+            return [...prevChannels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]
+        });
+        
     }
     function onUserChannels(data) {
         if (data.error) {
@@ -55,7 +75,6 @@ export const Channels = observer(function() {
     function onMessage(data) {
         setChannels((prevChannels) => {
             const channelIndex = prevChannels.findIndex(channel => channel.name === data.channelName);
-            console.log(data);
             if (channelIndex === -1) {
                 console.warn('channel not found', data.channelName, channels);
                 return prevChannels;
