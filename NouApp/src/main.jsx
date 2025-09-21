@@ -11,6 +11,7 @@ import { Channels } from './components/Channels';
 import { SessionCreate } from './components/SessionCreate';
 import './index.css';
 import { StoreContext } from './hooks/useStore';
+import { ChannelInfo } from './components/ChannelInfo';
 
 /** 
  * Base Application Component 
@@ -24,6 +25,7 @@ export function AppComponent() {
 				<Route path="/" Component={() => <SessionCreate />}/>
 				<Route path="/channels" Component={() => <Channels/>}/>
 				<Route path="/channel/:name" Component={() => <Channel/>}/>
+				<Route path="/channel-info/:name" Component={() => <ChannelInfo/>}></Route>
 			</Routes>
 		</BrowserRouter>
 	</StoreContext.Provider>
