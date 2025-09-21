@@ -5,56 +5,52 @@ import { useParams } from "react-router-dom";
 import { useWebSocket, useStore } from "../hooks";
 import { Link } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import "bootstrap-icons/font/bootstrap-icons.css";
 
-export const Channel = observer(function() {
+export const Channel = observer(function () {
   // ref on message
+  function transformMessageFromServer(message) {
+    return {
+      own: store.user.name === message.authorName,
+      message: message.text,
+    };
+  }
   const params = useParams();
   const store = useStore();
-  const responseActions = {
-    'message': onMessage,
-    'channel': onChannel,
-  };
-  const ws = useWebSocket(() => {
-    ws.current.onopen = () => {
-      ws.current.onmessage = (messageEvent) => {
-        const responseBody = JSON.parse(messageEvent.data);
-        if (responseBody.error) {
-          console.error(responseBody.error.message);
-          return;
-        }
-        if (!responseBody.type || !responseActions[responseBody.type]) {
-          return;
-        }
-        responseActions[responseBody.type](responseBody);
-      };
+  const [messages, setMessages] = React.useState([]);
+  const ws = useWebSocket({
+    init: () => {
       if (messages.length === 0) {
         // getting channel messages
-        ws.current.send(JSON.stringify({type: 'channel', username: store.user.name, channelName: params.name}));
+        ws.current.send(
+          JSON.stringify({
+            type: "channel",
+            username: store.user.name,
+            channelName: params.name,
+          })
+        );
       }
-    };
+    },
+    onChannel: (responseBody) => {
+      setMessages(() =>
+        responseBody.data.messages.map((message) =>
+          transformMessageFromServer(message)
+        )
+      );
+    },
+    onMessage: (responseBody) => {
+      const message = responseBody.data;
+      const transformedMessage = transformMessageFromServer(message);
+      setMessages((prevMessages) => [...prevMessages, transformedMessage]);
+    },
   });
-  
-  const [messages, setMessages] = React.useState([]);
+
   React.useEffect(() => {
-    const chat = document.querySelector('.chat-container');
+    const chat = document.querySelector(".chat-container");
+    // move scrollbar to bottom on new message
     chat.scrollTo(0, chat.scrollHeight);
   }, [messages]);
-  function transformMessageFromServer(message) {
-    return {own: store.user.name === message.authorName, message: message.text}
-  }
-  function onMessage(responseBody) {
-    const message = responseBody.data;
-    const transformedMessage = transformMessageFromServer(message);
-    setMessages((prevMessages) => [...prevMessages, transformedMessage]);
-  }
-  function onChannel(responseBody) {
-    setMessages(() => responseBody.data.messages.map(message => (transformMessageFromServer(message))))
-  }
-  /**
-   * send message function
-   * @param e - Event
-   */
+
   function sendMessage(e) {
     e.preventDefault();
     const message = document.querySelector(
@@ -77,18 +73,19 @@ export const Channel = observer(function() {
           &lt;
         </Link>
         <div className="channel__header__channel-name">{params.name}</div>
-        <Link to={`/channel-info/${params.name}`} className='bi bi-people-fill'></Link>
+        <Link
+          to={`/channel-info/${params.name}`}
+          className="bi bi-people-fill"
+        ></Link>
       </div>
-      <Chat
-        messages={messages}
-      />
+      <Chat messages={messages} />
       <form className="channel-form-message" onSubmit={sendMessage}>
         <input
           type="text"
           className="channel-form-message__input-message"
           placeholder="/* type some message... */"
         />
-        <button className="channel-form-message__send-button" type='submit'>
+        <button className="channel-form-message__send-button" type="submit">
           -&gt;
         </button>
       </form>

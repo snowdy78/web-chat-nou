@@ -70,10 +70,10 @@
 .channel-info__member-list__member {
     --padding: 4ch;
     display: grid;
-    height: max-content;
+    height: 50px;
     width: calc(100% - 2*var(--padding));
     grid-template-columns: max-content auto;
-    grid-template-rows: max-content;
+    grid-template-rows: auto;
     padding: 0 var(--padding);
 }
 .channel-info__member-list__member:hover {

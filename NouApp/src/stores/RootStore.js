@@ -8,10 +8,7 @@ import { MUser } from './User';
 export const MRootStore = types.model('RootStore', {
     user: types.maybeNull(MUser),
 }).actions(self => ({
-    initUser(name, channels) {
-        self.user = MUser.create({name, channels});
+    initUser(name) {
+        self.user = MUser.create({name});
     },
-    appendUserChannel(uniqueName) {
-        self.user.addChannel(uniqueName);
-    }
 }));

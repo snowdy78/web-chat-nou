@@ -19,10 +19,10 @@ function doUserChannels(clientId, body) {
             const truncatedData = {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]};
             result.data.channels.push(truncatedData);
         }
-        else { // add a warning to result if channel not found
-            result.warn = result.warn ?? {};
-            result.warn.channelNotFound = result.warn.channel_not_found ?? [];
-            result.warn.channelNotFound.push(channelName);
+        else if (!result.warn) { // add a warning to result if channel not found
+            result.warn = {message: 'Not all channels found'};
+            result.warn.channelsNotFound ??= [];
+            result.warn.channelsNotFound.push(user.channels[i]);
         }
     }
     return [[clientId], result];
