@@ -1,34 +1,75 @@
+.channels-component {
+  width: var(--nou-window-width);
+  height: var(--nou-window-height);
+  position:relative;
+}
 .channels-component__header {
   display: flex;
   padding: 10px;
   width: calc(100% - 20px);
-  height: 3em;
+  height: var(--nou-window-header-height);
   background-color: var(--light-gray);
   justify-content: flex-end;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 .channels-component__add-channel-button {
   border-radius: 100%;
 }
 .channel-list {
   display: flex;
-  height: 512px;
   overflow-y: auto;
-  width: 400px;
+  height: var(--nou-window-body-height);
   flex-direction: column;
   align-items: center;
   background-color: var(--light);
+  
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .channel-list__channel {
   width: 100%;
-  border-bottom: 1px solid gray;
+  height: 50px;
   text-indent: 4ch;
+}
+.channel-list__channel:hover {
+  background-color: rgba(255, 255, 255, 0.096);
+  cursor:pointer;
+}
+.channel-list__channel__name {
+  color: #646cff;
+}
+.channel-list__channel__name:hover {
+  cursor: inherit;
+}
+.channel-list__channel:hover .channel-list__channel__name {
+  text-decoration: underline;
 }
 .channel-list__channel__name::first-letter {
   text-transform: uppercase;
   line-height: 2em;
 }
+.channel-list__channel__last-message:hover {
+  cursor: inherit;
+}
 .channel-list__channel__last-message {
   color: gray;
-  text-indent: 6ch;
+  text-indent: 8ch;
   font-size: 10pt;
+}
+.left-account-button-container {
+  line-height: var(--nou-window-body-height);
+}
+.left-account-button {
+  --primary: rgb(177, 23, 36);
+  position:absolute;
+  right: 0;
+  bottom: 0;
+  --indent: 20px;
+  margin: var(--indent);
+  font-weight: bold;
+  color: var(--primary);
+}
+.left-account-button:hover {
+  border-color: var(--primary);
 }

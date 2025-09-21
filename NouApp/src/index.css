@@ -6,13 +6,17 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+  --ban-color: rgb(201, 27, 71);
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: var(--gray);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  --nou-window-width: 400px;
+  --nou-window-height: 500px;
+  --nou-window-header-height: 50px;
+  --nou-window-body-height: calc(var(--nou-window-height) - var(--nou-window-header-height));
   -moz-osx-font-smoothing: grayscale;
 }
 .hidden-text {
