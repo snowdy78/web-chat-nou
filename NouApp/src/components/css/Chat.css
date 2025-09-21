@@ -2,7 +2,7 @@
 .chat-container {
     display: flex;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
     height: 400px;
     background-color: var(--light);
     border-radius: 10px;

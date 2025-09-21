@@ -1,18 +1,24 @@
+:root {
+    --from-message-height: 70px;
+}
 .channel {
     display: flex;
-    width: 300px;
+    width: var(--nou-window-width);
+    height: var(--nou-window-height);
     flex-direction: column;
 }
 .channel-form-message {
+    --padding: 10px;
     display: grid;
     justify-content: center;
     grid-template-columns: calc(100% - 50px) 50px;
-    grid-template-rows: 50px;
+    grid-template-rows: calc(var(--from-message-height) - 2*var(--padding));
     background-color: var(--light-gray);
     border-radius: 0 0 10px 10px;
-    padding: 10px;
+    padding: var(--padding);
 }
 .channel .chat-container {
+    height: calc(var(--nou-window-body-height) - var(--from-message-height));
     border-radius: 0;
 }
 .channel-form-message__send-button {

@@ -112,7 +112,7 @@ export const Channels = observer(function() {
                 {channels.length === 0
                 ? 
                 <div className='hidden-text'>
-                    Channels does not exist
+                    You have no channels yet
                 </div> 
                 : 
                 channels.map((value, index) => (

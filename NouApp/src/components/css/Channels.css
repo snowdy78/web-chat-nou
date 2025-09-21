@@ -1,8 +1,13 @@
+.channels-component {
+  width: var(--nou-window-width);
+  height: var(--nou-window-height);
+
+}
 .channels-component__header {
   display: flex;
   padding: 10px;
   width: calc(100% - 20px);
-  height: 3em;
+  height: var(--nou-window-header-height);
   background-color: var(--light-gray);
   justify-content: flex-end;
   border-top-left-radius: 10px;
@@ -13,9 +18,8 @@
 }
 .channel-list {
   display: flex;
-  height: 500px;
   overflow-y: auto;
-  width: 400px;
+  height: var(--nou-window-body-height);
   flex-direction: column;
   align-items: center;
   background-color: var(--light);
@@ -25,13 +29,18 @@
 }
 .channel-list__channel {
   width: 100%;
+  height: 50px;
   text-indent: 4ch;
 }
 .channel-list__channel:hover {
   background-color: rgba(255, 255, 255, 0.096);
+  cursor:pointer;
 }
 .channel-list__channel__name {
   color: #646cff;
+}
+.channel-list__channel__name:hover {
+  cursor: inherit;
 }
 .channel-list__channel:hover .channel-list__channel__name {
   text-decoration: underline;
@@ -40,8 +49,11 @@
   text-transform: uppercase;
   line-height: 2em;
 }
+.channel-list__channel__last-message:hover {
+  cursor: inherit;
+}
 .channel-list__channel__last-message {
   color: gray;
-  text-indent: 6ch;
+  text-indent: 8ch;
   font-size: 10pt;
 }
