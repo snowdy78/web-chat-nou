@@ -116,9 +116,9 @@ export const Channels = observer(function() {
                 </div> 
                 : 
                 channels.map((value, index) => (
-                    <div key={`channel-list__channel${index}`} className="channel-list__channel">
+                    <div key={`channel-list__channel${index}`} className="channel-list__channel" onClick={() => window.location = `/channel/${value.name}` }>
                         <div className="channel-list__channel__name">
-                            <Link to={`/channel/${value.name}`}>{value.name}</Link>
+                            {value.name}
                         </div>                        
                         <div className="channel-list__channel__last-message">
                             {value.lastMessage ? `${value.lastMessage.authorName}: ${value.lastMessage.text}` : 'No messages sended'} 

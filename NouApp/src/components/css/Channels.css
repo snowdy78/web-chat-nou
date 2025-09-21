@@ -5,23 +5,36 @@
   height: 3em;
   background-color: var(--light-gray);
   justify-content: flex-end;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 .channels-component__add-channel-button {
   border-radius: 100%;
 }
 .channel-list {
   display: flex;
-  height: 512px;
+  height: 500px;
   overflow-y: auto;
   width: 400px;
   flex-direction: column;
   align-items: center;
   background-color: var(--light);
+  
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .channel-list__channel {
   width: 100%;
-  border-bottom: 1px solid gray;
   text-indent: 4ch;
+}
+.channel-list__channel:hover {
+  background-color: rgba(255, 255, 255, 0.096);
+}
+.channel-list__channel__name {
+  color: #646cff;
+}
+.channel-list__channel:hover .channel-list__channel__name {
+  text-decoration: underline;
 }
 .channel-list__channel__name::first-letter {
   text-transform: uppercase;
