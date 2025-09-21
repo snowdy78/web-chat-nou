@@ -5,9 +5,9 @@ export function Message({own = false, ...props}) {
     return (
         <div className={`row-message ${own ? 'row-self-message' : ''}`}>
             <div className="message">
-                <div className="message-content">
+                <p className="message-content">
                     {props.children}
-                </div>
+                </p>
             </div>
         </div>
     );

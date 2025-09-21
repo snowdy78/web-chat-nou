@@ -4,17 +4,20 @@
     min-width: 1ch;
     width: fit-content;
     min-height: 2em;
-    padding-top: 5px;
     border-radius: calc(1em + 5px);
     background-color: var(--gray);
 }
 .message-content {
     display: flex;
+    text-align: justify;
+    padding: 10px 0;
+    font-weight: 100;
 }
 .row-message {
     display: flex;
     justify-content: start;
     margin: 5px;
+    
 }
 .row-self-message {
     justify-content: end;
