@@ -18,6 +18,7 @@ export const SessionCreate = observer(function () {
     },
     onUser: (messageData) => {
       store.initUser(messageData.data.name, messageData.data.channels);
+      // save user to session
       sessionStorage.setItem(
         "user",
         JSON.stringify({ name: messageData.data.name })
