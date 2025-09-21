@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { useWebSocket, useStore } from "../hooks";
 import { Link } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export const Channel = observer(function() {
   // ref on message
@@ -76,6 +77,7 @@ export const Channel = observer(function() {
           &lt;
         </Link>
         <div className="channel__header__channel-name">{params.name}</div>
+        <Link to={`/channel-info/${params.name}`} className='bi bi-people-fill'></Link>
       </div>
       <Chat
         messages={messages}

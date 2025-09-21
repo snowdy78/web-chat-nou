@@ -37,7 +37,7 @@
 .channel__header {
     display: grid;
     width: 100%;
-    grid-template-columns: 50px calc(100% - 50px);
+    grid-template-columns: 50px calc(100% - 100px) 50px;
     background: var(--light-gray);
     border-radius: 10px 10px 0 0;
 }
@@ -57,7 +57,6 @@
     text-decoration: none;
 }
 .channel__header__channel-name {
-    transform: translateX(-25px); /* decrease button '<' size to centralize channel name */
     justify-self: center;
     align-self: center;
     font-weight: 500;
@@ -65,4 +64,9 @@
 }
 .channel__header__channel-name::first-letter {
     text-transform: uppercase;
+}
+.channel__header .bi {
+  justify-self: center;
+  align-self: center;
+  cursor: pointer;
 }
