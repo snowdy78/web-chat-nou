@@ -1,6 +1,11 @@
 import React from 'react';
 import { SERVER_URL } from '../config';
 
+/**
+ * creates connection to server and close connection on component destroy
+ * @param {() => void} callback 
+ * @returns web socket ref
+ */
 export function useWebSocket(callback) {
     const ws = React.useRef(null);
     React.useEffect(() => {
