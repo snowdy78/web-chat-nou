@@ -44,6 +44,9 @@ export function ChannelInfo() {
     setMembers(() => [...body.data.members]);
   }
   function onRemoveMembers(body) {
+    if (body.newAuthor && store.user.name === body.newAuthor) {
+      setIsChannelAuthor(true);
+    }
     setMembers((prevMembers) => {
       const memberIndex = prevMembers.findIndex(member => body.membername === member);
       if (memberIndex === -1) {
@@ -56,7 +59,7 @@ export function ChannelInfo() {
       }
       prevMembers.splice(memberIndex, 1);
       return [...prevMembers];
-    })
+    });
   }
   function searchMembers(e) {
     setFilterName(e.target.value);
@@ -88,7 +91,7 @@ export function ChannelInfo() {
         ) : (
           members.map((value, index) => {
             if (filterName && value.indexOf(filterName) === -1) {
-              return <div key={null} style={{display: 'none'}}></div>;
+              return <div key={`channel-info__member-list__member${index}`} style={{display: 'none'}}></div>;
             }
             return (
               <div
@@ -97,7 +100,7 @@ export function ChannelInfo() {
               >
                 <div className="channel-info__member-list__member__name">{value}</div>
                 {
-                  isChannelAuthor && store.user.name !== value
+                  isChannelAuthor
                   ?
                   <button className="channel-info__member-list__member__kick bi-ban" onClick={(e) => removeMember(e, index)}></button>
                   : 

@@ -26,6 +26,9 @@ function doChannel(clientId, body) {
         channel.members.push(body.username);
         // add channel to user channels
         user.channels.push(body.channelName);
+        if (channel.authorName === null) { // set author if it does not exist
+            channels[body.channelName].authorName = user.name;
+        }
         const clientIds = getChannelClientMembers(channel.name);
         return [clientIds, {...body, data: channels[body.channelName]}];
     }
