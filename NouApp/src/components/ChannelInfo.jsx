@@ -77,7 +77,7 @@ export function ChannelInfo() {
   return (
     <div className="channel-info">
       <div className='channel-info__header'>
-        <button className="channel-info__header__back-button" onClick={ () => window.history.back() }>&lt;</button>
+        <div className="channel-info__header__back-button" onClick={ () => window.history.back() }>&lt;</div>
       </div>
       <div className="channel-info__channel-name">{params.name}</div>
       <div className="channel-info__header-members">Members</div>

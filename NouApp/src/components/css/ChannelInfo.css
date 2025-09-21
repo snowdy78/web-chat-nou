@@ -8,15 +8,27 @@
 }
 .channel-info__header {
     display: grid;
-    height: var(--nou-window-header-height);
+    height: 70px;
     grid-template-columns: auto auto;
     grid-template-rows: auto;
-    padding: 10px;
     background-color: var(--light-gray);
     border-radius: 10px 10px 0 0;
 }
 .channel-info__header__back-button {
     width: 50px;
+    height: inherit;
+    line-height: 70px;
+    text-align: center;
+    border-radius: 10px 10px 10px 0;
+    transition: background 0.2s;
+    color: white;
+}
+.channel-info__header__back-button:hover { /* button '<' */
+    font-weight: 500;
+    cursor: pointer;
+    background-color: color-mix(in srgb, black 20%, transparent 80%);
+    color: white;
+    text-decoration: none;
 }
 .channel-info__channel-name {
     display: flex;
