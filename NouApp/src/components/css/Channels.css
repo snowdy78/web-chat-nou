@@ -1,7 +1,7 @@
 .channels-component {
   width: var(--nou-window-width);
   height: var(--nou-window-height);
-
+  position:relative;
 }
 .channels-component__header {
   display: flex;
@@ -56,4 +56,20 @@
   color: gray;
   text-indent: 8ch;
   font-size: 10pt;
+}
+.left-account-button-container {
+  line-height: var(--nou-window-body-height);
+}
+.left-account-button {
+  --primary: rgb(177, 23, 36);
+  position:absolute;
+  right: 0;
+  bottom: 0;
+  --indent: 20px;
+  margin: var(--indent);
+  font-weight: bold;
+  color: var(--primary);
+}
+.left-account-button:hover {
+  border-color: var(--primary);
 }

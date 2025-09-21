@@ -93,6 +93,10 @@
     justify-self: end;
     padding: var(--padding);
 }
+
+.channel-info__member-list__member__kick > .bi-ban:hover {
+  border-color: rgb(163, 34, 51);
+}
 .channel-info__member-list__member__kick > .bi-ban {
     display: flex;
     justify-content: center;

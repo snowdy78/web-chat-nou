@@ -102,6 +102,9 @@ export const Channels = observer(function() {
                 }
                 
             </div>
+            <div className='left-account-button-container'>
+                <button className='left-account-button bi-box-arrow-left' onClick={ () => window.location = '/' }/>
+            </div>
             <div className="channel-list">
                 {
                     channelError ? <div className='error-field'>{channelLoadWarning}</div> : null
