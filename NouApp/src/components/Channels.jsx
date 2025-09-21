@@ -13,12 +13,17 @@ export const Channels = observer(function() {
         'userchannels': onUserChannels,
         'channel': onChannel,
         'message': onMessage,
+        'removemember': onRemoveMember,
     });
 
     const ws = useWebSocket(() => {
         ws.current.onopen = () => {
             ws.current.onmessage = (messageEvent) => {
                 const response = JSON.parse(messageEvent.data);
+                if (response.error) {
+                    setChannelError(response.error.message);
+                    return;
+                }
                 if (response && response.type && webSocketActions.current[response.type]) {
                     webSocketActions.current[response.type](response);
                 }
@@ -33,6 +38,16 @@ export const Channels = observer(function() {
             window.location = '/';
         }
     }, [store]);
+    function onRemoveMember(body) {
+        setChannels((prevChannels) => {
+            if (store.user.name !== body.membername) {
+                return prevChannels;
+            }
+            const channelIndex = prevChannels.find(channelData => channelData.name === body.channelName);
+            prevChannels.splice(channelIndex, 1);
+            return [...prevChannels];
+        });
+    } 
     function onChannel(data) {
         setChannels((prevChannels) => {
             const channel = data.data;

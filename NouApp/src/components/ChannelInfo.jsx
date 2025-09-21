@@ -46,11 +46,15 @@ export function ChannelInfo() {
   function onRemoveMembers(body) {
     setMembers((prevMembers) => {
       const memberIndex = prevMembers.findIndex(member => body.membername === member);
-      if (memberIndex !== -1) {
+      if (memberIndex === -1) {
         console.warn('Member not found');
         return prevMembers;
       }
-      prevMembers.slice(memberIndex, 1);
+      if (prevMembers[memberIndex] === store.user.name) {
+        window.location = '/channels';
+        return;
+      }
+      prevMembers.splice(memberIndex, 1);
       return [...prevMembers];
     })
   }
