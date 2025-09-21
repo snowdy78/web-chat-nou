@@ -43,6 +43,11 @@ export const Channel = observer(function () {
       const transformedMessage = transformMessageFromServer(message);
       setMessages((prevMessages) => [...prevMessages, transformedMessage]);
     },
+    onRemoveMember: (responseBody) => {
+      if (responseBody.membername === store.user.name) {
+        window.location = "/channels";
+      }
+    },
   });
 
   React.useEffect(() => {
