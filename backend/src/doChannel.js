@@ -1,4 +1,5 @@
 const {clients, channels, users} = require('./globals');
+const {getChannelClientMembers} = require('./tools');
 /**
  * finds user in user list or push a new
  * @param clientId - request client id 
@@ -25,6 +26,8 @@ function doChannel(clientId, body) {
         channel.members.push(body.username);
         // add channel to user channels
         user.channels.push(body.channelName);
+        const clientIds = getChannelClientMembers(channel.name);
+        return [clientIds, {...body, data: channels[body.channelName]}];
     }
     return [[clientId], {...body, data: channels[body.channelName]}]
 }
