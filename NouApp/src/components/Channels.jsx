@@ -34,11 +34,17 @@ export const Channels = observer(function() {
         }
     }, [store]);
     function onChannel(data) {
-        const channel = data.data;
-        store.appendUserChannel(channel.name);
-        const userData = { name: store.user.name, channels: [...channels.map(v => v.name), channel.name] };
-		sessionStorage.setItem('user', JSON.stringify(userData));
-        setChannels((prevChannels) => [...prevChannels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]);
+        setChannels((prevChannels) => {
+            const channel = data.data;
+            if (prevChannels.find(c => channel.name === c.name)) {
+                return prevChannels;
+            }
+            store.appendUserChannel(channel.name);
+            const userData = { name: store.user.name, channels: [...channels.map(v => v.name), channel.name] };
+            sessionStorage.setItem('user', JSON.stringify(userData));
+            return [...prevChannels, {name: channel.name, lastMessage: channel.messages[channel.messages.length - 1]}]
+        });
+        
     }
     function onUserChannels(data) {
         if (data.error) {
